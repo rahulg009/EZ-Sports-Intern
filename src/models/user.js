@@ -15,20 +15,30 @@ const userSchema = new mongoose.Schema({
         trim: true
     },
     ph:{
-        type:Number,
-        required: true
+        type:String,
+        required: true,
+        match: /^[0-9]{10}$/,
+        trim:true,
+        unique:true
+        
+        // validate(value){
+        //     if (!validator.isMobilePhone(value)) {
+        //         throw new Error('Phone Number is Invalid')
+        //     }
+        // }
     },
     email: {
         type: String,
-        unique: true,
         required: true,
+        match: /.+\@.+\..+/,
         trim: true,
         lowercase: true,
-        validate(value) {
-            if (!validator.isEmail(value)) {
-                throw new Error('Email is invalid')
-            }
-        }
+        unique: true
+        // validate(value) {
+        //     if (!validator.isEmail(value)) {
+        //         throw new Error('Email is invalid')
+        //     }
+        // }
     },
     password: {
         type: String,
