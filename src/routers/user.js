@@ -34,11 +34,10 @@ router.post("/register", function (req, res) {
 });
 
 //handling login logic
-router.post(
-  "/login",
+router.post("/login",
   passport.authenticate("local", {
     successRedirect: "/",
-    failureRedirect: "/login",
+    failureRedirect: "/failure",
   }),
   function (err, req, res) {
     res.status(400).send(res);
@@ -62,7 +61,7 @@ router.get("/user/about", auth, async function (req, res) {
   }
 });
 // user edit
-router.patch("/users/edit", auth, async (req, res) => {
+router.patch("/user/edit", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["firstName", "lastName", "ph", "email", "password"];
   const isValidOperation = updates.every((update) =>
@@ -82,8 +81,31 @@ router.patch("/users/edit", auth, async (req, res) => {
     console.log(e);
   }
 });
+
+router.patch("/user/changePassword", auth, async (req, res) => {
+  User.findOne(
+    {
+      username:req.user.username,
+    },
+    function (err, user) {
+      if (!user) {
+      //   return res.redirect("back");
+      return res.send("invalid")
+      }
+      if (req.body.password === req.body.confirm) {
+        user.setPassword(req.body.password, function (err) {
+          user.save(function (err) {
+            res.send("Password Changed")
+          });
+        });
+      } else {
+      return res.send("password do not match")
+      }
+    }
+  );
+});
 // user delete
-router.delete("/users/remove", auth, async (req, res) => {
+router.delete("/user/remove", auth, async (req, res) => {
   try {
     await req.user.remove();
     res.send(req.user);
@@ -92,9 +114,9 @@ router.delete("/users/remove", auth, async (req, res) => {
   }
 });
 
-// router.get('/failure',function(req,res){
-//     res.send("Failed")
-// })
+router.get('/failure',function(req,res){
+    res.send("Failed")
+})
 // router.get('/google/callback',function(req,res){
 //     res.send("Oauth Done")
 //     console.log()
@@ -134,7 +156,7 @@ router.get("/facebook", passport.authenticate("facebook"));
 
 router.get(
   "/facebook/callback",
-  passport.authenticate("facebook", { failureRedirect: "/login" }),
+  passport.authenticate("facebook", { successRedirect: "/user/about", failureRedirect: "/login" }),
   function (req, res) {
     // Successful authentication, redirect home.
     res.redirect("/");
@@ -173,17 +195,18 @@ router.post("/forgot", function (req, res, next) {
         });
       },
       function (token, user, done) {
+        console.log(user.email)
         var smtpTransport = nodemailer.createTransport({
           service: "Gmail",
           auth: {
-            user: "mydevelopings@gmail.com",
+            user: "coolranjanayush@gmail.com",
             pass: process.env.GMAILPW,
           },
         });
         var mailOptions = {
           to: user.email,
-          from: "mydevelopings@gmail.com",
-          subject: "Esports Password Reser",
+          from: "coolranjanayush@gmail.com",
+          subject: "Esports Password Reset",
           text:
             "You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n" +
             "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
@@ -196,12 +219,12 @@ router.post("/forgot", function (req, res, next) {
         };
         smtpTransport.sendMail(mailOptions, function (err) {
           console.log("mail sent");
-          req.flash(
-            "success",
-            "An e-mail has been sent to " +
-              user.email +
-              " with further instructions."
-          );
+          // req.flash(
+          //   "success",
+          //   "An e-mail has been sent to " +
+          //     user.email +
+          //     " with further instructions."
+          // );
           done(err, "done");
         });
       },
@@ -260,7 +283,7 @@ router.post("/reset/:token", function (req, res) {
                 });
               });
             } else {
-              req.flash("error", "Passwords do not match.");
+              // req.flash("error", "Passwords do not match.");
             //   return res.redirect("back");
             return res.send("password do not match")
             }
@@ -271,13 +294,13 @@ router.post("/reset/:token", function (req, res) {
         var smtpTransport = nodemailer.createTransport({
           service: "Gmail",
           auth: {
-            user: "mydevelopings@gmail.com",
+            user: "coolranjanayush@gmail.com",
             pass: process.env.GMAILPW,
           },
         });
         var mailOptions = {
           to: user.email,
-          from: "mydevelopings@gmail.com",
+          from: "coolranjanayush@gmail.com",
           subject: "Your password has been changed",
           text:
             "Hello,\n\n" +

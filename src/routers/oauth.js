@@ -39,7 +39,7 @@ passport.use(new GoogleStrategy({
     callbackURL: "http://localhost:3000/google/callback"
   },
   (accessToken, refreshToken, profile, done)=>{
-    User.findOne({googleId: profile.id}).then((currentUser)=>{
+    User.findOne({email:profile.emails[0].value}).then((currentUser)=>{
         if(currentUser){
           //if we already have a record with the given profile ID
           done(null, currentUser);
@@ -56,10 +56,7 @@ passport.use(new GoogleStrategy({
          } 
       })
       console.log(profile.emails[0].value.split('@')[0]);
-
   }
-
-
 ));
 
 
