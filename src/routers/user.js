@@ -61,7 +61,7 @@ router.get("/user/about", auth, async function (req, res) {
     res.send("please login");
   }
 });
-
+// user edit
 router.patch("/users/edit", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["firstName", "lastName", "ph", "email", "password"];
@@ -82,7 +82,7 @@ router.patch("/users/edit", auth, async (req, res) => {
     console.log(e);
   }
 });
-
+// user delete
 router.delete("/users/remove", auth, async (req, res) => {
   try {
     await req.user.remove();
@@ -109,6 +109,8 @@ router.delete("/users/remove", auth, async (req, res) => {
 //         successRedirect: '/user/about',
 //         failureRedirect: '/failure'
 // }));
+
+
 // Google Auth
 router.get(
   "/google",
@@ -163,7 +165,7 @@ router.post("/forgot", function (req, res, next) {
           }
 
           user.resetPasswordToken = token;
-          user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+          user.resetPasswordExpires = Date.now() + 3600000;
 
           user.save(function (err) {
             done(err, token, user);
@@ -206,7 +208,8 @@ router.post("/forgot", function (req, res, next) {
     ],
     function (err) {
       if (err) return next(err);
-      res.redirect("/forgot");
+    //   res.redirect("/forgot");
+        res.send("redirected")
     }
   );
 });
@@ -242,7 +245,8 @@ router.post("/reset/:token", function (req, res) {
                 "error",
                 "Password reset token is invalid or has expired."
               );
-              return res.redirect("back");
+            //   return res.redirect("back");
+            return res.send("invalid")
             }
             if (req.body.password === req.body.confirm) {
               user.setPassword(req.body.password, function (err) {
@@ -257,7 +261,8 @@ router.post("/reset/:token", function (req, res) {
               });
             } else {
               req.flash("error", "Passwords do not match.");
-              return res.redirect("back");
+            //   return res.redirect("back");
+            return res.send("password do not match")
             }
           }
         );
