@@ -203,13 +203,13 @@ router.post("/forgot", function (req, res, next) {
         var smtpTransport = nodemailer.createTransport({
           service: "Gmail",
           auth: {
-            user: "coolranjanayush@gmail.com",
-            pass: "Ayush@6456",
+            user: process.env.EMAIL,
+            pass: process.env.GMAILPW,
           },
         });
         var mailOptions = {
           to: user.email,
-          from: "coolranjanayush@gmail.com",
+          from: process.env.EMAIL,
           subject: "Esports Password Reset",
           text:
             "You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n" +
@@ -299,13 +299,13 @@ router.post("/reset/:token", function (req, res) {
         var smtpTransport = nodemailer.createTransport({
           service: "Gmail",
           auth: {
-            user: "coolranjanayush@gmail.com",
-            pass: "Ayush@6456",
+            user: process.env.EMAIL,
+            pass: process.env.GMAILPW,
           },
         });
         var mailOptions = {
           to: user.email,
-          from: "coolranjanayush@gmail.com",
+          from: process.env.EMAIL,
           subject: "Your password has been changed",
           text:
             "Hello,\n\n" +
@@ -337,13 +337,13 @@ router.post("/verify", function (req, res, next) {
   var smtpTransport = nodemailer.createTransport({
     service: "Gmail",
     auth: {
-      user: "coolranjanayush@gmail.com",
-      pass: "Ayush@6456",
+      user: process.env.EMAIL,
+      pass: process.env.GMAILPW,
     },
   });
   var mailOptions = {
     to: req.body.email,
-    from: "coolranjanayush@gmail.com",
+    from: process.env.EMAIL,
     subject: "Esports Email Verification",
     html:
       "<h3>OTP for account verification is </h3>" +
@@ -360,6 +360,23 @@ router.post("/verify", function (req, res, next) {
       res.status(200).send("OTP sent to email");
     }
   });
+  sec=newSecret.secret
+  res.send({sec})
 });
+
+router.post("/verify/check", function(req,res){
+
+    
+    const token = req.header('Authorization').replace('Bearer ', '')
+    twofactor.verifyToken(token, req.body.token)
+    var x=twofactor.verifyToken(token, req.body.token).delta
+    if(x= 0 || 1 || -1){
+      res.status(200).send("Successfully Verified")
+    }
+    else{
+      res.status.send("Didnt match")
+    }
+
+})
 
 module.exports = router;
