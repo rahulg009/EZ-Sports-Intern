@@ -6,6 +6,7 @@ const router = new express.Router();
 var async = require("async");
 var nodemailer = require("nodemailer");
 var crypto = require("crypto");
+const twofactor = require("node-2fa");
 require("./oauth");
 require("./oauthfb");
 
@@ -34,7 +35,8 @@ router.post("/register", function (req, res) {
 });
 
 //handling login logic
-router.post("/login",
+router.post(
+  "/login",
   passport.authenticate("local", {
     successRedirect: "/",
     failureRedirect: "/failure",
@@ -85,21 +87,21 @@ router.patch("/user/edit", auth, async (req, res) => {
 router.patch("/user/changePassword", auth, async (req, res) => {
   User.findOne(
     {
-      username:req.user.username,
+      username: req.user.username,
     },
     function (err, user) {
       if (!user) {
-      //   return res.redirect("back");
-      return res.send("invalid")
+        //   return res.redirect("back");
+        return res.send("invalid");
       }
       if (req.body.password === req.body.confirm) {
         user.setPassword(req.body.password, function (err) {
           user.save(function (err) {
-            res.send("Password Changed")
+            res.send("Password Changed");
           });
         });
       } else {
-      return res.send("password do not match")
+        return res.send("password do not match");
       }
     }
   );
@@ -114,9 +116,9 @@ router.delete("/user/remove", auth, async (req, res) => {
   }
 });
 
-router.get('/failure',function(req,res){
-    res.send("Failed")
-})
+router.get("/failure", function (req, res) {
+  res.send("Failed");
+});
 // router.get('/google/callback',function(req,res){
 //     res.send("Oauth Done")
 //     console.log()
@@ -131,7 +133,6 @@ router.get('/failure',function(req,res){
 //         successRedirect: '/user/about',
 //         failureRedirect: '/failure'
 // }));
-
 
 // Google Auth
 router.get(
@@ -156,7 +157,10 @@ router.get("/facebook", passport.authenticate("facebook"));
 
 router.get(
   "/facebook/callback",
-  passport.authenticate("facebook", { successRedirect: "/user/about", failureRedirect: "/login" }),
+  passport.authenticate("facebook", {
+    successRedirect: "/user/about",
+    failureRedirect: "/login",
+  }),
   function (req, res) {
     // Successful authentication, redirect home.
     res.redirect("/");
@@ -165,8 +169,8 @@ router.get(
 
 //forgot password
 router.get("/forgot", function (req, res) {
-//   res.render("forgot");
-    res.send("Forget")
+  //   res.render("forgot");
+  res.send("Forget");
 });
 
 router.post("/forgot", function (req, res, next) {
@@ -183,7 +187,7 @@ router.post("/forgot", function (req, res, next) {
           if (!user) {
             // req.flash("error", "No account with that email address exists.");
             // return res.redirect("/forgot");
-            res.status(400).send("No account with that email address exists.")
+            res.status(400).send("No account with that email address exists.");
           }
 
           user.resetPasswordToken = token;
@@ -195,12 +199,12 @@ router.post("/forgot", function (req, res, next) {
         });
       },
       function (token, user, done) {
-        console.log(user.email)
+        console.log(user.email);
         var smtpTransport = nodemailer.createTransport({
           service: "Gmail",
           auth: {
             user: "coolranjanayush@gmail.com",
-            pass: process.env.GMAILPW,
+            pass: "Ayush@6456",
           },
         });
         var mailOptions = {
@@ -231,8 +235,8 @@ router.post("/forgot", function (req, res, next) {
     ],
     function (err) {
       if (err) return next(err);
-    //   res.redirect("/forgot");
-        res.send("redirected")
+      //   res.redirect("/forgot");
+      res.send("redirected");
     }
   );
 });
@@ -248,7 +252,7 @@ router.get("/reset/:token", function (req, res) {
         req.flash("error", "Password reset token is invalid or has expired.");
         return res.status(400).send("no user");
       }
-    //   res.render("reset", { token: req.params.token });
+      //   res.render("reset", { token: req.params.token });
     }
   );
 });
@@ -264,12 +268,12 @@ router.post("/reset/:token", function (req, res) {
           },
           function (err, user) {
             if (!user) {
-              req.flash(
-                "error",
-                "Password reset token is invalid or has expired."
-              );
-            //   return res.redirect("back");
-            return res.send("invalid")
+              // req.flash(
+              //   "error",
+              //   "Password reset token is invalid or has expired."
+              // );
+              //   return res.redirect("back");
+              return res.send("invalid");
             }
             if (req.body.password === req.body.confirm) {
               user.setPassword(req.body.password, function (err) {
@@ -279,13 +283,14 @@ router.post("/reset/:token", function (req, res) {
                 user.save(function (err) {
                   req.logIn(user, function (err) {
                     done(err, user);
+                    res.status(200).send("Password Changed");
                   });
                 });
               });
             } else {
               // req.flash("error", "Passwords do not match.");
-            //   return res.redirect("back");
-            return res.send("password do not match")
+              //   return res.redirect("back");
+              return res.send("password do not match");
             }
           }
         );
@@ -295,7 +300,7 @@ router.post("/reset/:token", function (req, res) {
           service: "Gmail",
           auth: {
             user: "coolranjanayush@gmail.com",
-            pass: process.env.GMAILPW,
+            pass: "Ayush@6456",
           },
         });
         var mailOptions = {
@@ -309,15 +314,52 @@ router.post("/reset/:token", function (req, res) {
             " has just been changed.\n",
         };
         smtpTransport.sendMail(mailOptions, function (err) {
-        //   req.flash("success", "Success! Your password has been changed.");
+          //   req.flash("success", "Success! Your password has been changed.");
           done(err);
         });
       },
     ],
     function (err) {
-    res.send()
+      res.send();
     }
   );
+});
+
+router.post("/verify", function (req, res, next) {
+  console.log(req.body.email);
+  const newSecret = twofactor.generateSecret({
+    name: "Esports",
+    account: req.body.email,
+  });
+  console.log(newSecret.secret);
+  const newToken = twofactor.generateToken(newSecret.secret);
+  console.log(newToken.token);
+  var smtpTransport = nodemailer.createTransport({
+    service: "Gmail",
+    auth: {
+      user: "coolranjanayush@gmail.com",
+      pass: "Ayush@6456",
+    },
+  });
+  var mailOptions = {
+    to: req.body.email,
+    from: "coolranjanayush@gmail.com",
+    subject: "Esports Email Verification",
+    html:
+      "<h3>OTP for account verification is </h3>" +
+      "<h1 style='font-weight:bold;'>" +
+      newToken.token +
+      "</h1>", // html body
+  };
+  smtpTransport.sendMail(mailOptions, function (err) {
+    if(err){
+      return console.log(err)
+    }
+    else{
+      console.log("mail sent");
+      res.status(200).send("OTP sent to email");
+    }
+  });
 });
 
 module.exports = router;
