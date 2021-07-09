@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require("express");
 const User = require("../models/user");
 var passport = require("passport");
