@@ -81,9 +81,15 @@ router.patch("/user/edit", auth, async (req, res) => {
   }
 
   try {
-    updates.forEach((update) => (req.user[update] = req.body[update]));
-    await req.user.save();
-    res.send(req.user);
+    // updates.forEach((update) => (req.user[update] = req.body[update]));
+    // await req.user.save();
+    // res.send(req.user);
+    Admin.findOne({username:req.user.username}, async (err,user)=>{
+      updates.forEach((update) => (req.user[update] = req.body[update]));
+      updates.forEach((update) => (user[update] = req.body[update]));
+      await user.save();
+      res.send(user);
+    })
   } catch (e) {
     res.status(400).send(e);
     console.log(e);

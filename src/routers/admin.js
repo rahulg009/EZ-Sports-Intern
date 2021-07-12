@@ -76,26 +76,32 @@ router.get("/admin/viewall", adminauth, async function (req, res) {
   })
 });
 // user edit
-// router.patch("/admin/edit", adminauth, async (req, res) => {
-//   const updates = Object.keys(req.body);
-//   const allowedUpdates = ["email"];
-//   const isValidOperation = updates.every((update) =>
-//     allowedUpdates.includes(update)
-//   );
+router.patch("/admin/edit", adminauth, async (req, res) => {
+  const updates = Object.keys(req.body);
+  const allowedUpdates = ["email"];
+  const isValidOperation = updates.every((update) =>
+    allowedUpdates.includes(update)
+  );
 
-//   if (!isValidOperation) {
-//     return res.status(400).send({ error: "Invalid updates!" });
-//   }
+  if (!isValidOperation) {
+    return res.status(400).send({ error: "Invalid updates!" });
+  }
 
-//   try {
-//     updates.forEach((update) => (req.user[update] = req.body[update]));
-//     await req.user.save();
-//     res.send(req.user);
-//   } catch (e) {
-//     res.status(400).send(e);
-//     console.log(e);
-//   }
-// });
+  try {
+    Admin.findOne({username:req.user.username}, async (err,user)=>{
+      updates.forEach((update) => (req.user[update] = req.body[update]));
+      updates.forEach((update) => (user[update] = req.body[update]));
+      await user.save();
+      res.send(user);
+    })
+    
+    // await req.user.save();
+    // res.send(req.user);
+  } catch (e) {
+    res.status(400).send(e);
+    console.log(e);
+  }
+});
 
 router.patch("/admin/changePassword", adminauth, async (req, res) => {
   Admin.findOne(
