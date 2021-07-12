@@ -12,7 +12,7 @@ require("./oauth");
 require("./oauthfb");
 
 router.get("/", function (req, res) {
-  res.send("user Logged");
+  res.send("Home User");
 });
 
 router.post("/register", function (req, res) {
@@ -38,8 +38,8 @@ router.post("/register", function (req, res) {
 //handling login logic
 router.post(
   "/login",
-  passport.authenticate("local", {
-    successRedirect: "/",
+  passport.authenticate("userLocal", {
+    successRedirect: "/user/home",
     failureRedirect: "/failure",
   }),
   function (err, req, res) {
@@ -47,6 +47,11 @@ router.post(
     console.log(err);
   }
 );
+
+// logout route
+router.get("/user/home", function (req, res) {
+  res.status(200).send("logged in");
+});
 
 // logout route
 router.get("/user/logout", function (req, res) {

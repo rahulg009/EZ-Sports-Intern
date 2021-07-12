@@ -4,6 +4,9 @@ require('./db/mongoose')
 const userRouter = require('./routers/user')
 var passport    = require("passport")
 var User        = require("./models/user")
+const adminRouter = require('./routers/admin')
+var passport    = require("passport")
+var Admin        = require("./models/admin")
 var LocalStrategy = require("passport-local")
 
 
@@ -23,11 +26,26 @@ app.use(require("express-session")({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+passport.use('userLocal', new LocalStrategy(User.authenticate()));
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
 
-app.use(userRouter)
+
+passport.use('adminLocal', new LocalStrategy(Admin.authenticate()));
+// passport.serializeUser(Admin.serializeUser());
+// passport.deserializeUser(Admin.deserializeUser());
+
+passport.serializeUser(function(user, done) { 
+    done(null, user);
+  });
+  
+  passport.deserializeUser(function(user, done) {
+    if(user!=null)
+      done(null,user);
+  });
+
+  app.use(userRouter)
+  app.use(adminRouter)
 
 app.listen(port, () => {
     console.log('Server is up on port ' + port)
