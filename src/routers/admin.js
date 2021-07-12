@@ -4,6 +4,7 @@ const User = require("../models/user");
 const Admin = require("../models/admin");
 var passport = require("passport");
 const adminauth = require("../middleware/adminauth");
+const superadmin = require("../middleware/superadmin");
 const router = new express.Router();
 var async = require("async");
 var nodemailer = require("nodemailer");
@@ -16,7 +17,7 @@ router.get("/admin", function (req, res) {
   res.send("Home Admin");
 });
 
-router.post("/admin/register", function (req, res) {
+router.post("/admin/register", superadmin, function (req, res) {
   console.log(req.body);
   var newAdmin = new User({
     username: req.body.username,
@@ -75,6 +76,7 @@ router.get("/admin/viewall", adminauth, async function (req, res) {
     }
   })
 });
+
 // user edit
 router.patch("/admin/edit", adminauth, async (req, res) => {
   const updates = Object.keys(req.body);
@@ -127,15 +129,26 @@ router.patch("/admin/changePassword", adminauth, async (req, res) => {
 });
 
 // admin delete
-router.delete("/admin/remove", adminauth, async (req, res) => {
+router.delete("/admin/remove", superadmin , async (req, res) => {
   try {
-    await req.user.remove();
-    res.send(req.user);
+    Admin.findOneAndDelete({username:req.body.username}, async(err, user) => {
+      res.send(`Deleted ${user.username}`);
+    })
   } catch (e) {
     res.status(500).send();
   }
 });
 
+router.get("/admin/viewuser", adminauth, async function (req, res) {
+  User.findOne({username:req.body.username},(err,user)=>{
+    if(user){
+      res.send(user)
+    }
+    else{
+      res.send("Empty")
+    }
+  })
+});
 
 router.get("/admin/viewUsers", adminauth, async function (req, res) {
   User.find({},(err,user)=>{
