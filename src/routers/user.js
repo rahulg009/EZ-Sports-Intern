@@ -95,7 +95,7 @@ router.patch("/user/edit", auth, async (req, res) => {
     console.log(e);
   }
 });
-
+// Change Password
 router.patch("/user/changePassword", auth, async (req, res) => {
   User.findOne(
     {
