@@ -1,7 +1,7 @@
 const Admin = require("../models/admin");
 const auth = function (req, res, next) {
   if (req.isAuthenticated()) {
-    Admin.findOne(req.user,
+    Admin.findOne({username:req.user.username},
       function (err, user) {
         if (user) {
           return next();
