@@ -66,7 +66,7 @@ router.get("/admin/about", adminauth, async function (req, res) {
   }
 });
 
-router.get("/admin/viewall", adminauth, async function (req, res) {
+router.get("/admin/viewall", superadmin, async function (req, res) {
   Admin.find({},(err,user)=>{
     if(user){
       res.send(user)
