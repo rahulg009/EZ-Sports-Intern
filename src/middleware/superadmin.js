@@ -4,7 +4,7 @@ const auth = function (req, res, next) {
   if (req.isAuthenticated()) {
     Admin.findOne({username:req.user.username},
       function (err, user) {
-        if (user.username==='rahuladmin') {
+        if (user.username==='Ayush') {
           return next();
         } else {
           res.status(400).send("You are not Super Admin");
