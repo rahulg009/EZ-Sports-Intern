@@ -5,6 +5,7 @@ const userRouter = require('./routers/user')
 var passport    = require("passport")
 var User        = require("./models/user")
 const adminRouter = require('./routers/admin')
+const gameRouter = require('./routers/game')
 var passport    = require("passport")
 var Admin        = require("./models/admin")
 var LocalStrategy = require("passport-local")
@@ -46,6 +47,7 @@ passport.serializeUser(function(user, done) {
 
   app.use(userRouter)
   app.use(adminRouter)
+  app.use(gameRouter)
 
 app.listen(port, () => {
     console.log('Server is up on port ' + port)
