@@ -41,6 +41,7 @@ router.post("/register",upload.single('profileImg'),async (req, res)=> {
     ph: req.body.ph,
     profileImg:buffer
   });
+  
   await User.register(newUser, req.body.password, function (err, user) {
     if (err) {
       console.log(err);
