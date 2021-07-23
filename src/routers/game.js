@@ -11,14 +11,33 @@ var async = require("async");
 var nodemailer = require("nodemailer");
 var crypto = require("crypto");
 const twofactor = require("node-2fa");
+const multer = require('multer');
+const sharp = require('sharp');
 require("./oauth");
 require("./oauthfb");
+
+
+const upload = multer({
+  limits: {
+      fileSize: 1000000
+  },
+  fileFilter(req, file, cb) {
+      if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+          return cb(new Error('Please upload an image'))
+      }
+
+      cb(undefined, true)
+  }
+})
 
 router.get("/game", (req, res) => {
   res.send("Game Page");
 });
 
-router.post("/game/add", adminauth, async (req, res) => {
+
+
+router.post("/game/add", adminauth,upload.single('logo'),async (req, res) => {
+  const buffer = await sharp(req.file.buffer).resize({ width: 250, height: 250 }).png().toBuffer()
   try {
     const game = new Game({
       name: req.body.name,
@@ -31,6 +50,7 @@ router.post("/game/add", adminauth, async (req, res) => {
         id: req.user._id,
         username: req.user.username,
       },
+      logo:buffer
     });
     await game.save();
     res.status(200).send(game);
@@ -73,11 +93,17 @@ router.get("/game/viewall", function (req, res) {
 
 router.get("/game/:id", async function (req, res) {
   Game.findOne({ _id: req.params.id }, (err, game) => {
-    if (game) {
-      res.send(game);
-    } else {
-      res.send("Not found");
-    }
+    // if (game) {
+    //   res.send(game);
+    // } else {
+    //   res.send("Not found");
+    // }
+    if (!game || !game.logo) {
+      throw new Error()
+  }
+
+  // res.set('Content-Type', 'image/png')
+  res.send(game)
   });
 });
 

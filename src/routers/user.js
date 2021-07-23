@@ -8,23 +8,40 @@ var async = require("async");
 var nodemailer = require("nodemailer");
 var crypto = require("crypto");
 const twofactor = require("node-2fa");
+const multer = require('multer')
+const sharp = require('sharp')
 require("./oauth");
 require("./oauthfb");
+
+const upload = multer({
+  limits: {
+      fileSize: 1000000
+  },
+  fileFilter(req, file, cb) {
+      if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+          return cb(new Error('Please upload an image'))
+      }
+
+      cb(undefined, true)
+  }
+})
 
 router.get("/", function (req, res) {
   res.send("Home User");
 });
-
-router.post("/register", function (req, res) {
+// User Add
+router.post("/register",upload.single('profileImg'),async (req, res)=> {
   console.log(req.body);
+  const buffer = await sharp(req.file.buffer).resize({ width: 250, height: 250 }).png().toBuffer()
   var newUser = new User({
     username: req.body.username,
     firstName: req.body.firstName,
     lastName: req.body.lastName,
     email: req.body.email,
     ph: req.body.ph,
+    profileImg:buffer
   });
-  User.register(newUser, req.body.password, function (err, user) {
+  await User.register(newUser, req.body.password, function (err, user) {
     if (err) {
       console.log(err);
       res.status(400).send(err.message);

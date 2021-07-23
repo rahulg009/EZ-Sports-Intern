@@ -41,6 +41,9 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         unique: true
     },
+    profileImg:{
+        type:Buffer
+    },
     resetPasswordToken: String,
     resetPasswordExpires: Date,
 });

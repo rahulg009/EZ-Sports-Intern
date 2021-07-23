@@ -24,6 +24,9 @@ const gameSchema = new mongoose.Schema({
             ref: "Admin"
          },
         username: String
+    },
+    logo:{
+        type:Buffer
     }
 },{
     timestamps:true
