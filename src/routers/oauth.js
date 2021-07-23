@@ -1,32 +1,4 @@
-// const passport = require('passport');
-// const User = require('../models/user')
-
-
-// var GoogleStrategy = require( 'passport-google-oauth20' ).Strategy;
-// passport.serializeUser((user,done)=>{
-//     done(null,user.id)
-// })
-// passport.deserializeUser((user,done)=>{
-//     done(null,user)
-// });
-
-
-// passport.use(new GoogleStrategy({
-//     clientID:     '1011574036991-mvs3o6arqub7cd9qcq7b5vfhhre98c4s.apps.googleusercontent.com',
-//     clientSecret: '6eNIOXLbLxReyrMpft_1owDt',
-//     callbackURL: "http://localhost:3000/google/callback",
-//     passReqToCallback   : true
-//   },(request, accessToken, refreshToken, profile, done) =>{
-//     // User.findOrCreate({ googleId: profile.id }, function (err, user) {
-//     // //   ;
-//     // console.log(user)
-//     // });
-//     done(console.log("triggered"))
-//     done(console.log(profile))
-//     return done(err, user)
-//   }
-// ));
-
+require('dotenv').config()
 const passport = require('passport')
 const GoogleStrategy=require('passport-google-oauth20').Strategy
 const User = require('../models/user')
@@ -34,9 +6,9 @@ const User = require('../models/user')
 passport.initialize()
  
 passport.use(new GoogleStrategy({
-    clientID:     '1011574036991-mvs3o6arqub7cd9qcq7b5vfhhre98c4s.apps.googleusercontent.com',
-    clientSecret: '6eNIOXLbLxReyrMpft_1owDt',
-    callbackURL: "http://localhost:3000/google/callback"
+    clientID:    process.env.GOOGLECLIENTID,
+    clientSecret: process.env.GOOGLECLIENTSECRET,
+    callbackURL: process.env.GOOGLECALLBACKURL
   },
   (accessToken, refreshToken, profile, done)=>{
     User.findOne({email:profile.emails[0].value}).then((currentUser)=>{

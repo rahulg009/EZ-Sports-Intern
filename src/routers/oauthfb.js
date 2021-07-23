@@ -1,11 +1,12 @@
+require('dotenv').config()
 const FacebookStrategy = require('passport-facebook')
 var passport = require("passport");
 const User = require('../models/user')
 
 passport.use(new FacebookStrategy({
-    clientID: '274519854450774',
-    clientSecret: 'ef55d2cab6997e971ada1134ad96db69',
-    callbackURL: "http://localhost:3000/facebook/callback"
+    clientID: process.env.FBCLIENTID,
+    clientSecret:process.env.FBCLIENTSECRET,
+    callbackURL: process.env.FBCALLBACKURL
   },
   function(accessToken, refreshToken, profile, cb) {
     User.findOne({username: profile.id}).then((currentUser)=>{
