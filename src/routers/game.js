@@ -3,6 +3,7 @@ const express = require("express");
 const User = require("../models/user");
 const Game = require("../models/game");
 const Admin = require("../models/admin");
+const Room = require("../models/room");
 var passport = require("passport");
 const adminauth = require("../middleware/adminauth");
 const superadmin = require("../middleware/superadmin");
@@ -91,7 +92,7 @@ router.get("/game/viewall", function (req, res) {
   });
 });
 
-router.get("/game/:id", async function (req, res) {
+router.get("/game/:id", async (req, res) =>{
   Game.findOne({ _id: req.params.id }, (err, game) => {
     // if (game) {
     //   res.send(game);
@@ -106,5 +107,44 @@ router.get("/game/:id", async function (req, res) {
   res.send(game)
   });
 });
+
+// Room Routes
+
+router.post("/game/room/:id", adminauth, async (req, res) => {
+  try {
+    Game.findOne({_id:req.params.id},async (err,game_exist)=>{
+      if(game_exist){
+        const room = new Room({
+          room:req.body.room,
+          game:{
+            id:req.params.id,
+            game_ty:game_exist.name
+          },
+          map:req.body.map,
+          roommode:req.body.roommode,
+          squadtype:req.body.squadtype,
+          platform:req.body.platform,
+          createdby: {
+            id: req.user._id,
+            username: req.user.username,
+          },
+          modifiedby: {
+            id: req.user._id,
+            username: req.user.username,
+          }
+        })
+        await room.save()
+        res.status(200).send(room)
+
+      }else{
+        res.send(err.message)
+      }
+    })
+
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+});
+
 
 module.exports = router;
