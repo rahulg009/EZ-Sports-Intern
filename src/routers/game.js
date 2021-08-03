@@ -60,27 +60,27 @@ router.post("/game/add", adminauth,upload.single('logo'),async (req, res) => {
   }
 });
 
-router.patch("/game/:id/edit", adminauth, async (req, res) => {
-  try {
-    const updateGame = {
-      name: req.body.name,
-      description: req.body.description,
-      modifiedby: {
-        id: req.user._id,
-        username: req.user.username,
-      },
-    };
-    await Game.findByIdAndUpdate(
-      req.params.id,
-      updateGame,
-      (err, updatedGame, next) => {
-        res.status(200).send(updateGame);
-      }
-    );
-  } catch (err) {
-    res.status(400).send(err.message);
-  }
-});
+// router.patch("/game/:id/edit", adminauth, async (req, res) => {
+//   try {
+//     const updateGame = {
+//       name: req.body.name,
+//       description: req.body.description,
+//       modifiedby: {
+//         id: req.user._id,
+//         username: req.user.username,
+//       },
+//     };
+//     await Game.findByIdAndUpdate(
+//       req.params.id,
+//       updateGame,
+//       (err, updatedGame, next) => {
+//         res.status(200).send(updateGame);
+//       }
+//     );
+//   } catch (err) {
+//     res.status(400).send(err.message);
+//   }
+// });
 
 router.get("/game/viewall", function (req, res) {
   Game.find({}, (err, game) => {
@@ -108,9 +108,43 @@ router.get("/game/:id", async (req, res) =>{
   });
 });
 
+// Update Game
+router.patch("/game/:id/edit",adminauth,async(req,res)=>{
+
+  try {
+    const updates = Object.keys(req.body);
+    Game.findOne({_id:req.params.id}, async (err,game)=>{
+      updates.forEach((update) => (game[update] = req.body[update]));
+      game['modifiedby']={
+        id: req.user._id,
+        username: req.user.username,
+      }
+      await game.save();
+      res.send(game);
+    })
+
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+
+});
+
+
+
+// Delete Game
+router.delete("/game/:id",adminauth,async (req,res)=>{
+  try{
+    await Game.findByIdAndDelete(req.params.id)
+    await res.status(200).send("Game Deleted")
+
+  }catch(err){
+    res.status(400).send(err.message)
+  }
+})
+// ================================================================================================================
 // Room Routes
 
-router.post("/game/room/:id", adminauth, async (req, res) => {
+router.post("/game/:id/room", adminauth, async (req, res) => {
   try {
     Game.findOne({_id:req.params.id},async (err,game_exist)=>{
       if(game_exist){
@@ -147,4 +181,35 @@ router.post("/game/room/:id", adminauth, async (req, res) => {
 });
 
 // Update Route
+router.patch("/game/room/:id",adminauth,async(req,res)=>{
+
+  try {
+    const updates = Object.keys(req.body);
+    Room.findOne({_id:req.params.id}, async (err,room)=>{
+      updates.forEach((update) => (room[update] = req.body[update]));
+      room['modifiedby']={
+        id: req.user._id,
+        username: req.user.username,
+      }
+      await room.save();
+      res.send(room);
+    })
+
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+
+});
+
+// Delete Room
+router.delete("/game/room/:id",adminauth,async (req,res)=>{
+  try{
+    await Room.findByIdAndDelete(req.params.id)
+    await res.status(200).send("Room Deleted")
+
+  }catch(err){
+    res.status(400).send(err.message)
+  }
+});
+
 module.exports = router;
