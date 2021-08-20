@@ -226,10 +226,7 @@ router.post("/game/room/:id/event", adminauth, async (req, res) => {
             id:req.params.id,
             game_ty:game_exist.name
           },
-          map:req.body.map,
-          roommode:req.body.roommode,
-          squadtype:req.body.squadtype,
-          platform:req.body.platform,
+          
           createdby: {
             id: req.user._id,
             username: req.user.username,
