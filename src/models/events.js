@@ -9,13 +9,13 @@ const eventSchema = new mongoose.Schema({
         },
         room_ty:String
     },
-    game:{
-        id:{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Game"
-        },
-        game_ty:String
-    },
+    // game:{
+    //     id:{
+    //         type: mongoose.Schema.Types.ObjectId,
+    //         ref: "Game"
+    //     },
+    //     game_ty:String
+    // },
     status:{
         type:String,
         default:"Disabled",
@@ -25,7 +25,7 @@ const eventSchema = new mongoose.Schema({
     startDate:{
         type:Date,
         required:true,
-        min:Date.now()
+        // min:Date.now()
     },
     endDate:{
         type:Date,
@@ -39,7 +39,7 @@ const eventSchema = new mongoose.Schema({
     },
     entryFee:{
         type:Number,
-        required:true  
+        // required:true  
     },
     rules:{
         type:String

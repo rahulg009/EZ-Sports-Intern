@@ -215,18 +215,24 @@ router.delete("/game/room/:id",adminauth,async (req,res)=>{
 
 // =====================================================================================================================
 // %- EVENT ROUTES -%
-
+// ADD EVENT
 router.post("/game/room/:id/event", adminauth, async (req, res) => {
   try {
     Room.findOne({_id:req.params.id},async (err,room_exist)=>{
       if(room_exist){
         const event = new Event({
-          room:req.body.room,
-          game:{
+          room:{
             id:req.params.id,
-            game_ty:game_exist.name
+            room_ty:room_exist.room
           },
-          
+          status:req.body.status,
+          startDate:req.body.startDate,
+          endDate:req.body.endDate,
+          roomID:req.body.roomID,
+          password:req.body.password,
+          entryFee:req.body.entryFee,
+          rules:req.body.rules,
+          prizePool:req.body.prizePool,
           createdby: {
             id: req.user._id,
             username: req.user.username,
@@ -236,8 +242,8 @@ router.post("/game/room/:id/event", adminauth, async (req, res) => {
             username: req.user.username,
           }
         })
-        await room.save()
-        res.status(200).send(room)
+        await event.save()
+        res.status(200).send(event)
 
       }else{
         res.send(err.message)
@@ -248,6 +254,42 @@ router.post("/game/room/:id/event", adminauth, async (req, res) => {
     res.status(400).send(err.message);
   }
 });
+
+// Delete Event
+router.delete("/game/room/event/:id",adminauth,async (req,res)=>{
+  try{
+    await Event.findByIdAndDelete(req.params.id)
+    await res.status(200).send("Event Deleted")
+
+  }catch(err){
+    res.status(400).send(err.message)
+  }
+});
+
+// Edit Event
+router.patch("/game/room/event/:id",adminauth,async(req,res)=>{
+
+  try {
+    const updates = Object.keys(req.body);
+    Event.findOne({_id:req.params.id}, async (err,event)=>{
+      updates.forEach((update) => (event[update] = req.body[update]));
+      event['modifiedby']={
+        id: req.user._id,
+        username: req.user.username,
+      }
+      await event.save();
+      res.send(event);
+    })
+
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+
+});
+
+// Read Events
+
+router.get("")
 
 
 module.exports = router;
