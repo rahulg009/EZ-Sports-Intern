@@ -216,5 +216,41 @@ router.delete("/game/room/:id",adminauth,async (req,res)=>{
 // =====================================================================================================================
 // %- EVENT ROUTES -%
 
+router.post("/game/room/:id/event", adminauth, async (req, res) => {
+  try {
+    Room.findOne({_id:req.params.id},async (err,room_exist)=>{
+      if(room_exist){
+        const event = new Event({
+          room:req.body.room,
+          game:{
+            id:req.params.id,
+            game_ty:game_exist.name
+          },
+          map:req.body.map,
+          roommode:req.body.roommode,
+          squadtype:req.body.squadtype,
+          platform:req.body.platform,
+          createdby: {
+            id: req.user._id,
+            username: req.user.username,
+          },
+          modifiedby: {
+            id: req.user._id,
+            username: req.user.username,
+          }
+        })
+        await room.save()
+        res.status(200).send(room)
+
+      }else{
+        res.send(err.message)
+      }
+    })
+
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+});
+
 
 module.exports = router;
