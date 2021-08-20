@@ -15,6 +15,7 @@ var crypto = require("crypto");
 const twofactor = require("node-2fa");
 const multer = require('multer');
 const sharp = require('sharp');
+const events = require("../models/events");
 require("./oauth");
 require("./oauthfb");
 
@@ -289,7 +290,24 @@ router.patch("/game/room/event/:id",adminauth,async(req,res)=>{
 
 // Read Events
 
-router.get("")
+router.get("/event/viewall",function (req, res) {
+  Event.find({}, (err, event) => {
+    if (event) {
+      res.send(event);
+    } else {
+      res.send(err);
+    }
+  });
+});
 
+router.get("/event/:id",function (req, res) {
+  Event.findById(req.params.id, (err, event) => {
+    if (event) {
+      res.send(event);
+    } else {
+      res.send(err);
+    }
+  });
+});
 
 module.exports = router;
