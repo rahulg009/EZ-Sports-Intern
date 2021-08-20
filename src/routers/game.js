@@ -4,6 +4,7 @@ const User = require("../models/user");
 const Game = require("../models/game");
 const Admin = require("../models/admin");
 const Room = require("../models/room");
+const Event = require("../models/events")
 var passport = require("passport");
 const adminauth = require("../middleware/adminauth");
 const superadmin = require("../middleware/superadmin");
@@ -211,5 +212,9 @@ router.delete("/game/room/:id",adminauth,async (req,res)=>{
     res.status(400).send(err.message)
   }
 });
+
+// =====================================================================================================================
+// %- EVENT ROUTES -%
+
 
 module.exports = router;
