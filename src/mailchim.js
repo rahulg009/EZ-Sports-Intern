@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 
 // Signup Route
-app.post('/subscribe', (req, res) => {
+app.post('/subscribe/', (req, res) => {
   const {email } = req.body;
   console.log(email)
 

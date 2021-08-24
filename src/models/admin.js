@@ -22,3 +22,6 @@ const adminSchema = new mongoose.Schema({
 adminSchema.plugin(passportLocalMongoose)
 
 module.exports = mongoose.model("Admin", adminSchema);
+
+
+
